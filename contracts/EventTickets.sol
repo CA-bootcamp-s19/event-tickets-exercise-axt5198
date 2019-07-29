@@ -160,6 +160,7 @@ contract EventTickets {
     function endSale()
     public isEventOpen()
     {
+        require(msg.sender == owner, "Only event creator can end sale");
         myEvent.isOpen = false;
         owner.transfer(address(this).balance);
         emit LogEndSale(owner, address(this).balance);
