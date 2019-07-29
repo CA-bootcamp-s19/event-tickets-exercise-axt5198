@@ -62,8 +62,8 @@ contract EventTicketsV2 {
         _;
     }
 
-    modifier checkAvailability(uint eventId, uint _totalTickets){
-        require(events[eventId].totalTickets >= _totalTickets, "Not enough available tickets to purchase");
+    modifier checkAvailability(uint eventId, uint tixToPurchase){
+        require(events[eventId].totalTickets >= tixToPurchase, "Not enough available tickets to purchase");
         _;
     }
 
@@ -135,6 +135,7 @@ contract EventTicketsV2 {
     public payable checkValue(tixToPurchase) isEventOpen(eventId) checkAvailability(eventId, tixToPurchase)
     {
         events[eventId].buyers[msg.sender] += tixToPurchase;
+        events[eventId].totalTickets -= tixToPurchase;
         events[eventId].sales += tixToPurchase;
         emit LogBuyTickets(msg.sender, eventId, tixToPurchase);
     }
@@ -185,7 +186,8 @@ contract EventTicketsV2 {
     public payable isOwner() isEventOpen(eventId)
     {
         events[eventId].isOpen = false;
-        owner.transfer(address(this).balance);
-        emit LogEndSale(owner, address(this).balance, eventId);
+        uint balance = address(this).balance;
+        owner.transfer(balance);
+        emit LogEndSale(owner, balance, eventId);
     }
 }
